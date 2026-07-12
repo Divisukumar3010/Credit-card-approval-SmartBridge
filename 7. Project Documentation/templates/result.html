@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application Result</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-900:#1B2140;
+    --ink-700:#333A5C;
+    --paper:#F1F3F9;
+    --panel:#FFFFFF;
+    --gold:#C9A227;
+    --gold-dim:#E7D9A8;
+    --slate:#6B7280;
+    --line:#DEE2EC;
+    --success:#2F6F4E;
+    --decline:#A63D2F;
+  }
+
+  *{ box-sizing:border-box; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink-900);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{
+    max-width:520px;
+    margin:0 auto;
+    padding:64px 24px 80px;
+  }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin:0 0 14px;
+    text-align:center;
+  }
+
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(26px, 5vw, 32px);
+    line-height:1.15;
+    margin:0 0 36px;
+    text-align:center;
+    color: {{ 'var(--success)' if approved else 'var(--decline)' }};
+  }
+
+  /* --- card --- */
+  .card{
+    position:relative;
+    aspect-ratio:1.586/1;
+    border-radius:18px;
+    padding:24px 26px;
+    background:
+      radial-gradient(120% 140% at 100% 0%, #2B3466 0%, transparent 55%),
+      linear-gradient(155deg, var(--ink-900) 0%, #10142B 100%);
+    color:#fff;
+    box-shadow:0 24px 48px -20px rgba(27,33,64,.55);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    overflow:hidden;
+    {{ 'filter:grayscale(.55) brightness(.85);' if not approved else '' }}
+  }
+
+  .card::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 2px, transparent 2px 5px);
+    pointer-events:none;
+  }
+
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+
+  .issuer{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+
+  .brand{
+    font-family:'Fraunces', serif;
+    font-size:14px;
+    letter-spacing:.03em;
+    opacity:.9;
+  }
+
+  .brand-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:8.5px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+    opacity:.8;
+  }
+
+  .chip-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .chip{
+    width:38px; height:29px;
+    border-radius:6px;
+    background:linear-gradient(155deg, var(--gold-dim), var(--gold));
+    position:relative;
+    box-shadow: inset 0 0 0 1px rgba(27,33,64,.25);
+  }
+  .chip::before, .chip::after{
+    content:"";
+    position:absolute; left:7px; right:7px;
+    height:1px; background:rgba(27,33,64,.35);
+  }
+  .chip::before{ top:9px; }
+  .chip::after{ top:19px; }
+  .chip span{
+    position:absolute; top:0; bottom:0; left:50%;
+    width:1px; background:rgba(27,33,64,.25);
+  }
+
+  .contactless{
+    width:20px; height:20px;
+    opacity:.85;
+  }
+  .contactless path{
+    fill:none;
+    stroke:#fff;
+    stroke-width:1.6;
+    stroke-linecap:round;
+  }
+
+  .number{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:clamp(16px, 3.8vw, 21px);
+    letter-spacing:.14em;
+    font-weight:500;
+    text-shadow:0 1px 0 rgba(255,255,255,.25), 0 -1px 0 rgba(0,0,0,.35);
+    margin-top:4px;
+  }
+
+  .card-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:12px;
+  }
+
+  .holder-block{
+    display:flex;
+    gap:22px;
+    align-items:flex-end;
+  }
+
+  .holder{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    opacity:.95;
+  }
+  .holder-label, .expiry-label{
+    display:block;
+    font-size:8.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+    margin-bottom:5px;
+    opacity:.85;
+  }
+  .expiry{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:.08em;
+    opacity:.95;
+  }
+
+  .network{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+  }
+
+  /* Visa-style wordmark */
+  .network-visa{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:.01em;
+    color:#fff;
+  }
+
+  /* Mastercard-style interlocking circles */
+  .network-mc{
+    display:flex;
+    align-items:center;
+  }
+  .network-mc .circle{
+    width:26px; height:26px;
+    border-radius:50%;
+  }
+  .network-mc .circle.red{
+    background:#EB5757;
+    margin-right:-9px;
+    opacity:.92;
+  }
+  .network-mc .circle.gold{
+    background:#F2C94C;
+    opacity:.92;
+    mix-blend-mode:screen;
+  }
+
+  .network-generic{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+  }
+
+  .stamp{
+    position:absolute;
+    top:78%; left:74%;
+    transform:translate(-50%,-50%) rotate(-13deg) scale(.55);
+    opacity:0;
+    padding:6px 14px;
+    border:3px solid var(--stamp-color);
+    border-radius:8px;
+    color:var(--stamp-color);
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:500;
+    font-size:20px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    background:rgba(255,255,255,.03);
+    white-space:nowrap;
+    animation:stampIn .45s cubic-bezier(.2,.9,.3,1.2) .5s forwards;
+  }
+  .stamp.approved{ --stamp-color: #6FCF9E; }
+  .stamp.declined{ --stamp-color: #E39089; }
+
+  @keyframes stampIn{
+    0%{ opacity:0; transform:translate(-50%,-50%) rotate(-13deg) scale(1.1); }
+    70%{ opacity:1; }
+    100%{ opacity:1; transform:translate(-50%,-50%) rotate(-13deg) scale(.7); }
+  }
+
+  .receipt{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    margin-top:32px;
+    padding:8px 28px;
+  }
+
+  .row{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 0;
+    border-bottom:1px dashed var(--line);
+    font-size:14px;
+  }
+  .row:last-child{ border-bottom:none; }
+
+  .row .label{
+    color:var(--slate);
+  }
+  .row .value{
+    font-family:'IBM Plex Mono', monospace;
+    text-align:right;
+  }
+
+  a.back{
+    display:block;
+    text-align:center;
+    margin-top:32px;
+    padding:15px;
+    border-radius:9px;
+    background:var(--ink-900);
+    color:#fff;
+    text-decoration:none;
+    font-weight:600;
+    font-size:15px;
+    transition:background .15s ease;
+  }
+  a.back:hover{ background:var(--ink-700); }
+  a.back:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+</style>
+</head>
+<body>
+  {% set digits = card_number.replace(' ', '') if card_number else '' %}
+  {% set network = 'visa' if digits.startswith('4') else ('mastercard' if digits[:1] in ['5'] else 'generic') %}
+  {% set exp_month = ((digits[-4]|int) % 12) + 1 if digits|length >= 4 else 12 %}
+  {% set exp_year = 27 + ((digits[-2]|int) % 5) if digits|length >= 2 else 29 %}
+
+  <div class="wrap">
+    <p class="eyebrow">Credit Card Approval Prediction</p>
+    <h1>{{ prediction_text }}</h1>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="issuer">
+          <span class="brand">Estimator Bank</span>
+          <span class="brand-sub">Member Estimator Network</span>
+        </div>
+        <div class="chip-row">
+          <div class="chip"><span></span></div>
+          <svg class="contactless" viewBox="0 0 24 24">
+            <path d="M6 16c3.5-4.5 8.5-4.5 12 0"/>
+            <path d="M8.5 13c2-2.5 5-2.5 7 0"/>
+            <path d="M11 10.2c.7-.8 1.3-.8 2 0"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="number">{{ card_number if card_number else '•••• •••• •••• ••••' }}</div>
+
+      <div class="card-bottom">
+        <div class="holder-block">
+          <div>
+            <span class="holder-label">Card holder</span>
+            <span class="holder">{{ applicant_name if applicant_name else 'Applicant' }}</span>
+          </div>
+          {% if card_number %}
+          <div>
+            <span class="expiry-label">Valid thru</span>
+            <span class="expiry">{{ '%02d'|format(exp_month) }}/{{ exp_year }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="network">
+          {% if not card_number %}
+            <span class="network-generic">{{ income_type if income_type else '' }}</span>
+          {% elif network == 'visa' %}
+            <span class="network-visa">VISA</span>
+          {% elif network == 'mastercard' %}
+            <div class="network-mc"><div class="circle red"></div><div class="circle gold"></div></div>
+          {% else %}
+            <span class="network-generic">Estimator Card</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="stamp {{ 'approved' if approved else 'declined' }}">
+        {{ 'Approved' if approved else 'Declined' }}
+      </div>
+    </div>
+
+    {% if income_type or education_type or annual_income %}
+    <div class="receipt">
+      <div class="row"><span class="label">Income type</span><span class="value">{{ income_type }}</span></div>
+      <div class="row"><span class="label">Education</span><span class="value">{{ education_type }}</span></div>
+      <div class="row"><span class="label">Annual income</span><span class="value">{{ annual_income }}</span></div>
+    </div>
+    {% endif %}
+
+    <a class="back" href="/">Try another application</a>
+  </div>
+</body>
+</html>
